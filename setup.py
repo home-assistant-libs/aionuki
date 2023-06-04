@@ -17,6 +17,7 @@ setup(
     long_description=LONG_DESC,
     long_description_content_type="text/markdown",
     packages=PACKAGES,
+    package_data={"aionuki": ["py.typed"]},
     zip_safe=True,
     platforms="any",
     install_requires=REQUIREMENTS,
