@@ -28,6 +28,8 @@ class NukiBridge:
         self._port: int = port
         self._tokendigest: str = hashlib.sha256(token.encode("utf-8")).digest()
         self._timeout: aiohttp.ClientTimeout = aiohttp.ClientTimeout(total=timeout)
+        self.devices: List[Dict[str, Any]] = [{}]
+        self.info: Dict[str, Any] = {}
     
     @property
     def base_url(self) -> str:
@@ -62,3 +64,15 @@ class NukiBridge:
         box = nacl.secret.SecretBox(self._tokendigest)
         ctoken = box.encrypt(ts.encode("utf-8"), nonce)
         return {"ctoken": str(ctoken.ciphertext.hex()), "nonce": str(nonce.hex())}
+
+    async def update_info(self) -> None:
+        """Fetches the newest info about the nuki bridge."""
+        response = await self._request("/info")
+        self.info = cast(Dict[str, Any], await response.json())
+
+    async def update(self) -> None:
+        """Fetches the newest state for nuki devices from the bridge."""
+        response = await self._request("/list")
+        self.devices = cast(Dict[str, Any], await response.json())
+
+    
